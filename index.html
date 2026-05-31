@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GestEntrega</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3045;
+    --accent: #00d4aa;
+    --accent2: #ff6b35;
+    --warn: #ffd166;
+    --danger: #ef233c;
+    --success: #06d6a0;
+    --text: #e8eaf0;
+    --text2: #8892a4;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Barlow', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+  .logo span { color: var(--text2); font-size: 12px; display: block; font-family: var(--sans); letter-spacing: 0; margin-top: 1px; }
+  .header-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .stat-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  .stat-pill.green { border-color: var(--success); color: var(--success); }
+  .stat-pill.red { border-color: var(--danger); color: var(--danger); }
+  .stat-pill.yellow { border-color: var(--warn); color: var(--warn); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* VIEWS */
+  .view { display: none; padding: 20px; max-width: 700px; margin: 0 auto; }
+  .view.active { display: block; }
+
+  /* IMPORT VIEW */
+  .section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    resize: vertical;
+    min-height: 200px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text2); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #0f1117; }
+  .btn-primary:hover { background: #00f0c0; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { opacity: 0.85; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* LOCATION BAR */
+  .location-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .location-info { flex: 1; }
+  .location-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+  .location-value { font-size: 13px; color: var(--text); margin-top: 2px; }
+  .location-value.active { color: var(--accent); }
+
+  /* NEXT DELIVERY CARD */
+  .next-card {
+    background: linear-gradient(135deg, #1a2940 0%, #1f2d45 100%);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .next-card::before {
+    content: 'PRÓXIMA';
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+  .next-card .waybill {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .next-card .address {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .next-card .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* PACKAGE LIST */
+  .pkg-list { display: flex; flex-direction: column; gap: 8px; }
+  .pkg-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.2s;
+  }
+  .pkg-item.delivered {
+    opacity: 0.45;
+    border-color: transparent;
+  }
+  .pkg-item.failed {
+    border-color: #2a1f1f;
+    background: #1a1515;
+  }
+  .pkg-item.next-item {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent)22;
+  }
+  .pkg-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .pkg-left { flex: 1; min-width: 0; }
+  .pkg-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+    margin-bottom: 3px;
+  }
+  .pkg-waybill {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 5px;
+    word-break: break-all;
+    user-select: all;
+  }
+  .pkg-addr {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .pkg-zone {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 3px;
+  }
+  .pkg-status {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pkg-status.pending { background: #1f2435; color: var(--text2); }
+  .pkg-status.delivered { background: #0d2e24; color: var(--success); }
+  .pkg-status.failed { background: #2e1515; color: var(--danger); }
+  .pkg-status.retry { background: #2e2510; color: var(--warn); }
+
+  .pkg-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .pkg-fail-reason {
+    font-size: 11px;
+    color: var(--warn);
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* FAIL MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000000bb;
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+  }
+  .modal h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--danger);
+    margin-bottom: 6px;
+  }
+  .modal p { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+  .modal input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .modal input:focus { border-color: var(--danger); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* SUMMARY */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .summary-card .val {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .summary-card .lbl { font-size: 12px; color: var(--text2); }
+  .summary-card.green .val { color: var(--success); }
+  .summary-card.red .val { color: var(--danger); }
+  .summary-card.yellow .val { color: var(--warn); }
+  .summary-card.blue .val { color: var(--accent); }
+
+  /* RETRY LIST */
+  .retry-section {
+    margin-top: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .retry-section h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--warn);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; line-height: 1.6; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--accent);
+    z-index: 300;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00f0c0);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--sans);
+  }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: #00d4aa11; }
+
+  .import-hint {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    .header-stats { display: none; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GestEntrega <span>Gestão de Rotas</span></div>
+  <div class="header-stats">
+    <div class="stat-pill green" id="hdr-delivered">✓ 0</div>
+    <div class="stat-pill red" id="hdr-failed">✗ 0</div>
+    <div class="stat-pill yellow" id="hdr-pending">⏳ 0</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('rota')">🗺 Rota</div>
+  <div class="tab" onclick="switchTab('importar')">📋 Importar</div>
+  <div class="tab" onclick="switchTab('resumo')">📊 Resumo</div>
+</div>
+
+<!-- ROTA VIEW -->
+<div class="view active" id="view-rota">
+
+  <div class="location-bar">
+    <div class="location-info">
+      <div class="location-label">📍 Localização atual</div>
+      <div class="location-value" id="loc-display">Não obtida</div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="getLocation()">Atualizar</button>
+  </div>
+
+  <div id="next-delivery-wrap"></div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all', this)">Todos</button>
+    <button class="filter-btn" onclick="setFilter('pending', this)">Por entregar</button>
+    <button class="filter-btn" onclick="setFilter('delivered', this)">Entregues</button>
+    <button class="filter-btn" onclick="setFilter('failed', this)">Não entregues</button>
+  </div>
+
+  <div class="pkg-list" id="pkg-list">
+    <div class="empty-state">
+      <div class="icon">📦</div>
+      <h3>Sem entregas carregadas</h3>
+      <p>Vai ao separador <strong>Importar</strong> e cola a lista de encomendas do WhatsApp.</p>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORTAR VIEW -->
+<div class="view" id="view-importar">
+  <div class="section-title">Colar lista de encomendas</div>
+  <div class="import-hint">
+    Cola o texto tal como recebeste no WhatsApp. Cada linha deve conter o waybill (CNPRT...), código postal e morada.<br>
+    Exemplo: <code>CNPRT36800761234007634160&nbsp;&nbsp;VISEU&nbsp;&nbsp;OLIVEIRA DE FRADES&nbsp;&nbsp;3680-076&nbsp;&nbsp;Largo da Feira N 31 1 andar direito</code>
+  </div>
+  <textarea id="import-text" placeholder="Cola aqui o texto do WhatsApp...&#10;&#10;CNPRT36800761234007634160	VISEU	OLIVEIRA DE FRADES	3680-076	Largo da Feira N 31 1 andar direito&#10;CNPRT36801701234007612036	VISEU	OLIVEIRA DE FRADES	3680-170	Zona Industrial, lote 69..."></textarea>
+  <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="importPackages()">📥 Importar e planear rota</button>
+    <button class="btn btn-outline" onclick="clearAll()">🗑 Limpar tudo</button>
+  </div>
+  <div id="import-result" style="margin-top:16px;"></div>
+</div>
+
+<!-- RESUMO VIEW -->
+<div class="view" id="view-resumo">
+  <div class="section-title">Resumo do dia</div>
+  <div class="summary-grid">
+    <div class="summary-card green">
+      <div class="val" id="sum-delivered">0</div>
+      <div class="lbl">Entregues</div>
+    </div>
+    <div class="summary-card red">
+      <div class="val" id="sum-failed">0</div>
+      <div class="lbl">Não entregues</div>
+    </div>
+    <div class="summary-card yellow">
+      <div class="val" id="sum-pending">0</div>
+      <div class="lbl">Por entregar</div>
+    </div>
+    <div class="summary-card blue">
+      <div class="val" id="sum-total">0</div>
+      <div class="lbl">Total pacotes</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <div class="summary-card" style="margin-bottom:10px;">
+    <div class="val" style="color:var(--accent); font-size:20px;" id="sum-revenue">0,00€</div>
+    <div class="lbl">Receita bruta (0,90€/pacote)</div>
+  </div>
+
+  <div class="summary-card" style="margin-bottom:20px;">
+    <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+      <div style="flex:1;">
+        <div class="lbl" style="margin-bottom:4px;">Combustível gasto (litros)</div>
+        <input type="number" id="fuel-input" placeholder="ex: 20" step="0.5" min="0"
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:14px;width:100%;outline:none;"
+          oninput="updateFuel()">
+      </div>
+      <div style="flex:1;">
+        <div class="lbl" style="margin-bottom:4px;">Preço gasóleo (€/L)</div>
+        <input type="number" id="fuel-price" value="1.65" step="0.01" min="0"
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:14px;width:100%;outline:none;"
+          oninput="updateFuel()">
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px solid var(--border);">
+      <span style="font-size:13px; color:var(--text2);">Custo combustível</span>
+      <span style="font-family:var(--mono); color:var(--danger);" id="sum-fuel">0,00€</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:6px;">
+      <span style="font-size:13px; color:var(--text2);">Lucro estimado</span>
+      <span style="font-family:var(--mono); font-weight:700;" id="sum-profit">0,00€</span>
+    </div>
+  </div>
+
+  <div class="retry-section" id="retry-section" style="display:none;">
+    <h3>⚠ Retentar — não entregues</h3>
+    <div id="retry-list" class="pkg-list"></div>
+  </div>
+</div>
+
+<!-- FAIL MODAL -->
+<div class="modal-overlay" id="fail-modal">
+  <div class="modal">
+    <h3>✗ Marcar como não entregue</h3>
+    <p>Motivo (opcional)</p>
+    <input type="text" id="fail-reason" placeholder="ex: cliente ausente, empresa fechada..." />
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmFail()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────
+let packages = [];
+let currentFilter = 'all';
+let currentLat = null;
+let currentLng = null;
+let failTarget = null;
+
+const PRICE_PER_PKG = 0.90;
+
+// ─── INIT ─────────────────────────────────────────────────────────
+function init() {
+  const saved = localStorage.getItem('gestentrega_packages');
+  if (saved) {
+    packages = JSON.parse(saved);
+    renderAll();
+  }
+  const savedFuel = localStorage.getItem('gestentrega_fuel');
+  if (savedFuel) document.getElementById('fuel-input').value = savedFuel;
+  updateFuel();
+}
+
+// ─── SAVE ─────────────────────────────────────────────────────────
+function save() {
+  localStorage.setItem('gestentrega_packages', JSON.stringify(packages));
+}
+
+// ─── PARSE ────────────────────────────────────────────────────────
+function parsePackages(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  const result = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Match waybill: CNPRT followed by digits
+    const waybillMatch = trimmed.match(/CNPRT\d+/i);
+    if (!waybillMatch) continue;
+
+    const waybill = waybillMatch[0];
+
+    // Split by tabs or multiple spaces
+    const parts = trimmed.split(/\t+/).map(p => p.trim()).filter(Boolean);
+
+    let district = '', city = '', postalCode = '', address = '';
+
+    if (parts.length >= 5) {
+      district = parts[1] || '';
+      city = parts[2] || '';
+      postalCode = parts[3] || '';
+      address = parts.slice(4).join(' ');
+    } else {
+      // Try splitting by 2+ spaces
+      const spaceParts = trimmed.split(/\s{2,}/).map(p => p.trim()).filter(Boolean);
+      if (spaceParts.length >= 3) {
+        district = spaceParts[1] || '';
+        city = spaceParts[2] || '';
+        postalCode = spaceParts[3] || '';
+        address = spaceParts.slice(4).join(' ');
+      } else {
+        address = trimmed.replace(waybill, '').trim();
+      }
+    }
+
+    // Determine zone from postal code prefix
+    const zone = getZone(postalCode, city);
+
+    result.push({
+      id: waybill,
+      waybill,
+      district,
+      city,
+      postalCode,
+      address: address || city,
+      zone,
+      status: 'pending', // pending | delivered | failed
+      failReason: '',
+      order: result.length,
+      lat: null,
+      lng: null,
+    });
+  }
+
+  return result;
+}
+
+function getZone(postalCode, city) {
+  const c = city.toUpperCase();
+  if (c.includes('VOUZELA')) return 'Vouzela';
+  if (c.includes('OLIVEIRA')) return 'Oliveira de Frades';
+  if (c.includes('TONDELA')) return 'Tondela';
+  if (c.includes('RIBEIRADIO')) return 'Ribeiradio';
+  if (c.includes('DESTRIZ') || c.includes('CARREGAL')) return 'Carregal/Destriz';
+  const prefix = (postalCode || '').substring(0, 4);
+  if (prefix === '3670') return 'Vouzela';
+  if (prefix === '3680') return 'Oliveira de Frades';
+  if (prefix === '3460') return 'Tondela';
+  return city || 'Outro';
+}
+
+// ─── IMPORT ───────────────────────────────────────────────────────
+function importPackages() {
+  const text = document.getElementById('import-text').value.trim();
+  if (!text) { showToast('Cola o texto primeiro!'); return; }
+
+  const parsed = parsePackages(text);
+  if (parsed.length === 0) {
+    document.getElementById('import-result').innerHTML =
+      '<div style="color:var(--danger);font-size:13px;">⚠ Nenhuma encomenda reconhecida. Verifica o formato.</div>';
+    return;
+  }
+
+  // Merge: keep existing statuses if waybill already exists
+  const existingMap = {};
+  packages.forEach(p => existingMap[p.waybill] = p);
+
+  packages = parsed.map(p => existingMap[p.waybill] ? { ...p, status: existingMap[p.waybill].status, failReason: existingMap[p.waybill].failReason } : p);
+
+  optimizeRoute();
+  save();
+  renderAll();
+
+  document.getElementById('import-result').innerHTML =
+    `<div style="color:var(--success);font-size:13px;">✓ ${packages.length} encomendas importadas e rota planeada!</div>`;
+
+  showToast(`${packages.length} pacotes importados!`);
+  setTimeout(() => switchTab('rota'), 1200);
+}
+
+function clearAll() {
+  if (!confirm('Limpar todos os dados?')) return;
+  packages = [];
+  save();
+  localStorage.removeItem('gestentrega_fuel');
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-result').innerHTML = '';
+  renderAll();
+  showToast('Dados limpos!');
+}
+
+// ─── ROUTE OPTIMIZATION ──────────────────────────────────────────
+function optimizeRoute() {
+  // Group by zone priority
+  const zonePriority = {
+    'Oliveira de Frades': 1,
+    'Tondela': 2,
+    'Vouzela': 3,
+    'Carregal/Destriz': 4,
+    'Ribeiradio': 5,
+    'Outro': 6,
+  };
+
+  const pending = packages.filter(p => p.status === 'pending');
+  const done = packages.filter(p => p.status !== 'pending');
+
+  if (currentLat && currentLng) {
+    // Sort by distance from current location
+    pending.sort((a, b) => {
+      const distA = getApproxDistance(a);
+      const distB = getApproxDistance(b);
+      return distA - distB;
+    });
+  } else {
+    // Sort by zone
+    pending.sort((a, b) => {
+      const pa = zonePriority[a.zone] || 6;
+      const pb = zonePriority[b.zone] || 6;
+      return pa - pb;
+    });
+  }
+
+  // Re-assign order
+  let i = 0;
+  pending.forEach(p => { p.order = i++; });
+  done.forEach(p => { p.order = i++; });
+
+  packages = [...pending, ...done];
+}
+
+function getApproxDistance(pkg) {
+  if (!currentLat || !currentLng) return 999;
+  // Approximate coordinates from postal code prefix
+  const coords = getApproxCoords(pkg);
+  if (!coords) return 500;
+  const dlat = coords.lat - currentLat;
+  const dlng = coords.lng - currentLng;
+  return Math.sqrt(dlat * dlat + dlng * dlng);
+}
+
+function getApproxCoords(pkg) {
+  const zone = pkg.zone;
+  const approx = {
+    'Oliveira de Frades': { lat: 40.7322, lng: -8.1738 },
+    'Vouzela': { lat: 40.7229, lng: -8.1122 },
+    'Tondela': { lat: 40.5191, lng: -8.0825 },
+    'Carregal/Destriz': { lat: 40.6702, lng: -8.2718 },
+    'Ribeiradio': { lat: 40.7098, lng: -8.3086 },
+  };
+  return approx[zone] || null;
+}
+
+// ─── GEOLOCATION ─────────────────────────────────────────────────
+function getLocation() {
+  const display = document.getElementById('loc-display');
+  display.textContent = 'A obter localização...';
+  display.className = 'location-value';
+
+  if (!navigator.geolocation) {
+    display.textContent = 'GPS não disponível';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      currentLat = pos.coords.latitude;
+      currentLng = pos.coords.longitude;
+      display.textContent = `${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`;
+      display.className = 'location-value active';
+      optimizeRoute();
+      save();
+      renderAll();
+      showToast('Localização obtida — rota recalculada!');
+    },
+    err => {
+      display.textContent = 'Erro ao obter GPS';
+      showToast('Não foi possível obter GPS');
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// ─── MARK DELIVERED ──────────────────────────────────────────────
+function markDelivered(waybill) {
+  const pkg = packages.find(p => p.waybill === waybill);
+  if (!pkg) return;
+  pkg.status = 'delivered';
+  pkg.failReason = '';
+
+  // Auto recalculate after marking
+  getLocationSilent(() => {
+    optimizeRoute();
+    save();
+    renderAll();
+    showToast('✓ Entregue! Rota recalculada.');
+  });
+}
+
+function getLocationSilent(cb) {
+  if (!navigator.geolocation) { optimizeRoute(); save(); renderAll(); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      currentLat = pos.coords.latitude;
+      currentLng = pos.coords.longitude;
+      document.getElementById('loc-display').textContent = `${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`;
+      document.getElementById('loc-display').className = 'location-value active';
+      if (cb) cb();
+    },
+    () => { if (cb) cb(); },
+    { enableHighAccuracy: true, timeout: 5000 }
+  );
+}
+
+// ─── MARK FAILED ────────────────────────────────────────────────
+function openFailModal(waybill) {
+  failTarget = waybill;
+  document.getElementById('fail-reason').value = '';
+  document.getElementById('fail-modal').classList.add('open');
+  setTimeout(() => document.getElementById('fail-reason').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('fail-modal').classList.remove('open');
+  failTarget = null;
+}
+
+function confirmFail() {
+  if (!failTarget) return;
+  const pkg = packages.find(p => p.waybill === failTarget);
+  if (!pkg) return;
+  pkg.status = 'failed';
+  pkg.failReason = document.getElementById('fail-reason').value.trim();
+  closeModal();
+  optimizeRoute();
+  save();
+  renderAll();
+  showToast('✗ Marcado como não entregue.');
+}
+
+function undoStatus(waybill) {
+  const pkg = packages.find(p => p.waybill === waybill);
+  if (!pkg) return;
+  pkg.status = 'pending';
+  pkg.failReason = '';
+  optimizeRoute();
+  save();
+  renderAll();
+  showToast('↩ Revertido para pendente.');
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────
+function openMaps(pkg) {
+  const query = encodeURIComponent(`${pkg.address} ${pkg.postalCode} Portugal`);
+  let url;
+  if (currentLat && currentLng) {
+    url = `https://www.google.com/maps/dir/${currentLat},${currentLng}/${query}`;
+  } else {
+    url = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+  }
+  window.open(url, '_blank');
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────
+function renderAll() {
+  renderList();
+  renderNextCard();
+  renderSummary();
+  renderHeader();
+}
+
+function renderHeader() {
+  const delivered = packages.filter(p => p.status === 'delivered').length;
+  const failed = packages.filter(p => p.status === 'failed').length;
+  const pending = packages.filter(p => p.status === 'pending').length;
+  document.getElementById('hdr-delivered').textContent = `✓ ${delivered}`;
+  document.getElementById('hdr-failed').textContent = `✗ ${failed}`;
+  document.getElementById('hdr-pending').textContent = `⏳ ${pending}`;
+}
+
+function renderNextCard() {
+  const wrap = document.getElementById('next-delivery-wrap');
+  const next = packages.find(p => p.status === 'pending');
+  if (!next) {
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="next-card">
+      <div class="waybill">${next.waybill}</div>
+      <div class="address">${next.address}<br><span style="font-size:13px;color:var(--text2);">${next.postalCode} ${next.city}</span></div>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" onclick="openMaps(packages.find(p=>p.waybill==='${next.waybill}'))">🗺 Google Maps</button>
+        <button class="btn btn-sm" style="background:var(--success);color:#0f1117;" onclick="markDelivered('${next.waybill}')">✓ Entregue</button>
+        <button class="btn btn-sm" style="background:var(--danger);color:white;" onclick="openFailModal('${next.waybill}')">✗ Não entregue</button>
+      </div>
+    </div>`;
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('pkg-list');
+  const nextPkg = packages.find(p => p.status === 'pending');
+
+  let filtered = packages;
+  if (currentFilter === 'pending') filtered = packages.filter(p => p.status === 'pending');
+  else if (currentFilter === 'delivered') filtered = packages.filter(p => p.status === 'delivered');
+  else if (currentFilter === 'failed') filtered = packages.filter(p => p.status === 'failed');
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">${currentFilter==='delivered'?'✅':currentFilter==='failed'?'❌':'📦'}</div><h3>${currentFilter==='all'?'Sem entregas carregadas':'Sem pacotes nesta categoria'}</h3><p>${currentFilter==='all'?'Vai ao separador Importar e cola a lista.':''}</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((pkg, idx) => {
+    const isNext = nextPkg && pkg.waybill === nextPkg.waybill;
+    const statusLabel = pkg.status === 'delivered' ? 'Entregue' : pkg.status === 'failed' ? 'Não entregue' : isNext ? 'Próxima' : 'Pendente';
+    const statusClass = pkg.status === 'delivered' ? 'delivered' : pkg.status === 'failed' ? 'failed' : isNext ? 'pending' : 'pending';
+    const itemClass = pkg.status === 'delivered' ? 'delivered' : pkg.status === 'failed' ? 'failed' : isNext ? 'next-item' : '';
+
+    return `<div class="pkg-item ${itemClass}" id="pkg-${pkg.waybill}">
+      <div class="pkg-header">
+        <div class="pkg-left">
+          <div class="pkg-num">#${pkg.order + 1} · ${pkg.zone}</div>
+          <div class="pkg-waybill">${pkg.waybill}</div>
+          <div class="pkg-addr">${pkg.address}</div>
+          <div class="pkg-zone">${pkg.postalCode} ${pkg.city}</div>
+          ${pkg.failReason ? `<div class="pkg-fail-reason">Motivo: ${pkg.failReason}</div>` : ''}
+        </div>
+        <div class="pkg-status ${statusClass}">${statusLabel}</div>
+      </div>
+      ${pkg.status === 'pending' ? `
+      <div class="pkg-actions">
+        <button class="btn btn-sm" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);" onclick="openMaps(packages.find(p=>p.waybill==='${pkg.waybill}'))">🗺 Maps</button>
+        <button class="btn btn-sm" style="background:var(--success);color:#0f1117;" onclick="markDelivered('${pkg.waybill}')">✓ Entregue</button>
+        <button class="btn btn-sm" style="background:var(--danger);color:white;" onclick="openFailModal('${pkg.waybill}')">✗ Não entregue</button>
+      </div>` : `
+      <div class="pkg-actions">
+        <button class="btn btn-outline btn-sm" onclick="undoStatus('${pkg.waybill}')">↩ Reverter</button>
+        ${pkg.status === 'pending' || pkg.status === 'failed' ? `<button class="btn btn-sm" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);" onclick="openMaps(packages.find(p=>p.waybill==='${pkg.waybill}'))">🗺 Maps</button>` : ''}
+      </div>`}
+    </div>`;
+  }).join('');
+}
+
+function renderSummary() {
+  const delivered = packages.filter(p => p.status === 'delivered').length;
+  const failed = packages.filter(p => p.status === 'failed').length;
+  const pending = packages.filter(p => p.status === 'pending').length;
+  const total = packages.length;
+
+  document.getElementById('sum-delivered').textContent = delivered;
+  document.getElementById('sum-failed').textContent = failed;
+  document.getElementById('sum-pending').textContent = pending;
+  document.getElementById('sum-total').textContent = total;
+
+  const revenue = delivered * PRICE_PER_PKG;
+  document.getElementById('sum-revenue').textContent = revenue.toFixed(2).replace('.', ',') + '€';
+
+  const pct = total > 0 ? (delivered / total) * 100 : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+
+  updateFuel();
+
+  // Retry list
+  const failedPkgs = packages.filter(p => p.status === 'failed');
+  const retrySection = document.getElementById('retry-section');
+  if (failedPkgs.length > 0) {
+    retrySection.style.display = 'block';
+    document.getElementById('retry-list').innerHTML = failedPkgs.map(pkg => `
+      <div class="pkg-item failed">
+        <div class="pkg-waybill">${pkg.waybill}</div>
+        <div class="pkg-addr">${pkg.address}</div>
+        <div class="pkg-zone">${pkg.postalCode} ${pkg.city}</div>
+        ${pkg.failReason ? `<div class="pkg-fail-reason">Motivo: ${pkg.failReason}</div>` : ''}
+        <div class="pkg-actions">
+          <button class="btn btn-sm" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);" onclick="openMaps(packages.find(p=>p.waybill==='${pkg.waybill}'))">🗺 Maps</button>
+          <button class="btn btn-outline btn-sm" onclick="undoStatus('${pkg.waybill}')">↩ Retentar</button>
+        </div>
+      </div>`).join('');
+  } else {
+    retrySection.style.display = 'none';
+  }
+}
+
+function updateFuel() {
+  const liters = parseFloat(document.getElementById('fuel-input').value) || 0;
+  const price = parseFloat(document.getElementById('fuel-price').value) || 1.65;
+  const fuelCost = liters * price;
+  const delivered = packages.filter(p => p.status === 'delivered').length;
+  const revenue = delivered * PRICE_PER_PKG;
+  const profit = revenue - fuelCost;
+
+  document.getElementById('sum-fuel').textContent = fuelCost.toFixed(2).replace('.', ',') + '€';
+  const profitEl = document.getElementById('sum-profit');
+  profitEl.textContent = profit.toFixed(2).replace('.', ',') + '€';
+  profitEl.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+  localStorage.setItem('gestentrega_fuel', liters);
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['rota', 'importar', 'resumo'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'resumo') renderSummary();
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── CLOSE MODAL ON OVERLAY ──────────────────────────────────────
+document.getElementById('fail-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─── ENTER TO CONFIRM FAIL ───────────────────────────────────────
+document.getElementById('fail-reason').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmFail();
+  if (e.key === 'Escape') closeModal();
+});
+
+// ─── START ────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
